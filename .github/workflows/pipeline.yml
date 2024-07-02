@@ -26,6 +26,18 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
+      - name: Message contains skip method 1
+        env:
+          HAS_SKIP: ${{ contains(join(github.event.commits.*.message), '#skip') }}
+        run: echo "$HAS_SKIP"
+      - name: Message contains skip method 2
+        env:
+          HAS_SKIP: ${{ contains(join(toJson(github.event.commits.*.message)), '#skip') }}
+        run: echo "$HAS_SKIP"
+      - name: Message contains skip method 3
+        env:
+          HAS_SKIP: ${{ contains(github.event.commits.*.message, '#skip') }}
+        run: echo "$HAS_SKIP"
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: E2E Tests
@@ -37,14 +49,6 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 1
-      - name: Message contains skip
-        env:
-          HAS_SKIP: ${{ contains(join(toJson(github.event.commits.*.message)), '#skip') }}
-        run: echo "$HAS_SKIP"
-      - name: Should deploy and tag
-        env:
-          SHOULD_DEPLOY_AND_TAG: ( !contains(join(toJson(github.event.commits.*.message)), '#skip') && github.event_name == 'push' )
-        run: echo "$SHOULD_DEPLOY_AND_TAG"
       - name: Setup Flyctl
         if: ${{ github.event_name == 'push' }}
         uses: superfly/flyctl-actions/setup-flyctl@master
