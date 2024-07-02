@@ -37,6 +37,10 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 1
+      - name: commit messages
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+        run: echo $COMMIT_MESSAGES
       - name: Setup Flyctl
         if: ${{ github.event_name == 'push' }}
         uses: superfly/flyctl-actions/setup-flyctl@master
