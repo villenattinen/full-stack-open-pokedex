@@ -26,18 +26,6 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
-      - name: Message contains skip method 1
-        env:
-          HAS_SKIP: ${{ contains(join(github.event.commits.*.message), '#skip') }}
-        run: echo "$HAS_SKIP"
-      - name: Message contains skip method 2
-        env:
-          HAS_SKIP: ${{ contains(join(toJson(github.event.commits.*.message)), '#skip') }}
-        run: echo "$HAS_SKIP"
-      - name: Message contains skip method 3
-        env:
-          HAS_SKIP: ${{ contains(github.event.commits.*.message, '#skip') }}
-        run: echo "$HAS_SKIP"
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: E2E Tests
@@ -50,10 +38,10 @@ jobs:
           path: playwright-report/
           retention-days: 1
       - name: Setup Flyctl
-        if: ${{ github.event_name == 'push' }}
+        if: ( github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip') )
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy
-        if: ${{ github.event_name == 'push' }}
+        if: ( github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip') )
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -64,7 +52,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Bump version and push tag
-      if: ${{ github.event_name == 'push' }}
+      if: ( github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip') )
       uses: anothrNick/github-tag-action@1.67.0
       env:
         DEFAULT_BUMP: patch
