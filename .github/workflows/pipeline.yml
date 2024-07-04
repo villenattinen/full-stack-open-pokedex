@@ -41,10 +41,31 @@ jobs:
         if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy
+        id: deploy
         if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Print Deployment outputs
+        env:
+          DEPLOY_OUTPUTS: ${{ toJson(steps.deploy.outputs) }}
+        run: echo "$DEPLOY_OUTPUTS"
+      - name: Notify Discord on Deployment
+        uses: rjstone/discord-webhook-notify@v1
+        if: steps.deploy.outcome == 'success'
+        with:
+          severity: info
+          text: "A new version of Pokedex deployed"
+          description: to https://full-stack-open-pokedex-floral-leaf-4726.fly.dev by ${{ github.actor }}
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Notify Discord on Failed Build
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure() && (github.event_name == 'push')
+        with:
+          severity: error
+          text: "Build failed"
+          description: commit ${{ github.event.head_commit.url }} by ${{ github.event.head_commit.author.username }} broke the build :(
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   tag_release:
     needs: [deployment_pipeline]
@@ -52,8 +73,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Bump version and push tag
-      if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
       uses: anothrNick/github-tag-action@1.67.0
+      if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
       env:
         DEFAULT_BUMP: patch
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
