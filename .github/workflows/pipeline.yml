@@ -49,9 +49,9 @@ jobs:
       - name: Check if deployment succeeds
         if: steps.deploy.outcome == 'success'
         run: echo "Deployment succeeded"
-      - name: Check if deployment succeeds
-        if: steps.deploy.outcome != 'success'
-        run: echo "Deployment failed"
+      - name: Check if pipeline succeeds
+        if: success()
+        run: echo "Pipeline failed"
 
   tag_release:
     needs: [deployment_pipeline]
