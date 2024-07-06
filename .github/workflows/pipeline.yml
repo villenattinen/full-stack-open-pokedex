@@ -38,46 +38,37 @@ jobs:
           path: playwright-report/
           retention-days: 1
       - name: Setup Flyctl
-        # comment these out to test deployment outputs
-        # if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
+        if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy
         id: deploy
-        # if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
+        if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      #- name: Notify Discord on Deployment
-      #  uses: rjstone/discord-webhook-notify@v1
-      #  if: steps.deploy.outcome == 'success'
-      #  with:
-      #    severity: info
-      #    text: "A new version of Pokedex deployed"
-      #    webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      #- name: Notify Discord on Failed Build
-      #  uses: rjstone/discord-webhook-notify@v1
-      #  if: failure()
-      #  with:
-      #    severity: error
-      #    text: "Build failed"
-      #    webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      - name: Test deploy output.url
-        env:
-          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
-        run: echo "$DEPLOY_URL"
-      - name: Test commits.url
-        env: 
-          COMMITS_URL: ${{ github.event.commits.url }}
-        run: echo "$COMMITS_URL"
+      - name: Notify Discord on Deployment
+        uses: rjstone/discord-webhook-notify@v1
+        if: steps.deploy.outcome == 'success'
+        with:
+          severity: info
+          text: "A new version of Pokedex deployed"
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Notify Discord on Failed Build
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: error
+          text: "Build failed"
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
-  #tag_release:
-  #  needs: [deployment_pipeline]
-  #  runs-on: ubuntu-20.04
-  #  steps:
-  #  - uses: actions/checkout@v4
-  #  - name: Bump version and push tag
-  #    uses: anothrNick/github-tag-action@1.67.0
-  #    if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
-  #    env:
-  #      DEFAULT_BUMP: patch
-  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  tag_release:
+    needs: [deployment_pipeline]
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@1.67.0
+      if: (github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip'))
+      env:
+        DEFAULT_BUMP: patch
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
