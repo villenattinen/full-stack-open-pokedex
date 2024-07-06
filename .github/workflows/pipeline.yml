@@ -52,13 +52,15 @@ jobs:
         with:
           severity: info
           text: "A new version of Pokedex deployed"
+          details: to https//full-stack-open-pokedex-floral-leaf-4726.fly.dev by ${{ github.actor }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Notify Discord on Failed Build
         uses: rjstone/discord-webhook-notify@v1
-        if: failure()
+        if: failure() && (github.event_name == 'push')
         with:
           severity: error
           text: "Build failed"
+          details: commit ${{ github.event.head_commit.url }} by ${{ github.event.head_commit.author.username }} broke the build :(
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   tag_release:
