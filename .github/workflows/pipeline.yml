@@ -46,11 +46,6 @@ jobs:
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      - name: Check deployment outputs
-        if: steps.deploy.outcome == 'success'
-        env:
-          DEPLOY_OUTPUTS: ${{ toJson(steps.deploy.outputs) }}
-        run: echo "$DEPLOY_OUTPUTS"
       - name: Notify Discord on Deployment
         uses: rjstone/discord-webhook-notify@v1
         if: steps.deploy.outcome == 'success'
