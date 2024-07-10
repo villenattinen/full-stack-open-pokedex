@@ -2,7 +2,7 @@ name: Health Check
 
 on:
   schedule:
-    - cron: '15 * * * *'
+    - cron: '40 18 * * *'
 
 jobs:
   periodic_health_check:
@@ -19,6 +19,7 @@ jobs:
         if: success()
         with:
           severity: info
+          text: 'Health Check'
           description: Pokedex is alive at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Notify Discord on Failed Health Check
@@ -26,5 +27,6 @@ jobs:
         if: failure()
         with:
           severity: error
+          text: 'Health Check'
           description: Pokedex is unreachable at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
