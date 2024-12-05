@@ -2,7 +2,7 @@ name: Health Check
 
 on:
   schedule:
-    - cron: '0 0 29 2 1'
+    - cron: '0 17 * * *'
 
 jobs:
   periodic_health_check:
@@ -15,18 +15,18 @@ jobs:
         with:
           url: https://full-stack-open-pokedex-floral-leaf-4726.fly.dev
       - name: Notify Discord on Successful Health Check
-        uses: rjstone/discord-webhook-notify@v1
+        uses: stegzilla/discord-notify@v2
         if: success()
         with:
-          severity: info
-          text: 'Health Check'
-          description: Pokedex is alive at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev
-          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          colour: "#2cfc03"
+          title: 'Health Check'
+          message: Pokedex is alive at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Notify Discord on Failed Health Check
-        uses: rjstone/discord-webhook-notify@v1
+        uses: stegzilla/discord-notify@v2
         if: failure()
         with:
-          severity: error
-          text: 'Health Check'
-          description: Pokedex is unreachable at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev!
-          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          colour: "#fc0303"
+          title: 'Health Check'
+          message: Pokedex is unreachable at https://full-stack-open-pokedex-floral-leaf-4726.fly.dev!
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
