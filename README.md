@@ -4,7 +4,7 @@ This repository is used for the CI/CD module of the Full stack open course
 
 ## Link to the Other Repository
 
-- [Anecdotes CI/CD Project](https://github.com/villenattinen/fullstack-open-cicd-project)
+- [Bloglist CI/CD Project](https://github.com/villenattinen/fullstack-cicd-blogapp)
 
 ## Commands
 
